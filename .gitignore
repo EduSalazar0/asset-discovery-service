@@ -1,0 +1,68 @@
+# ------------------------
+# Python cache and artifacts
+# ------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.so
+*.egg-info/
+*.egg
+
+# ------------------------
+# Virtual environments
+# ------------------------
+venv/
+.env
+.env.*
+
+# ------------------------
+# Logs and runtime files
+# ------------------------
+*.log
+*.pid
+*.gz
+*.tmp
+
+# ------------------------
+# Testing and coverage
+# ------------------------
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache/
+.pytest_cache/
+.junit.xml
+
+# ------------------------
+# mypy, pylint, and linters
+# ------------------------
+.mypy_cache/
+.dmypy.json
+.pytype/
+.pyre/
+
+# ------------------------
+# IDE/editor configs
+# ------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ------------------------
+# Docker artifacts
+# ------------------------
+*.tar
+*.img
+*.bak
+
+# ------------------------
+# OS system files
+# ------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
