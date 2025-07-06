@@ -1,0 +1,83 @@
+services:
+  # --- INFRAESTRUCTURA COMPARTIDA ---
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.2
+    container_name: zookeeper2
+    networks:
+      - backend
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.2
+    container_name: kafka2
+    networks:
+      - backend
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092" # Puerto para comunicación interna si es necesario
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      # El listener 'PLAINTEXT' es para la comunicación interna entre contenedores (e.g., kafka:9092)
+      # El listener 'PLAINTEXT_INTERNAL' es para la comunicación desde fuera de Docker (e.g., localhost:29092)
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  # --- BASE DE DATOS PARA ASSET DISCOVERY SERVICE ---
+  postgres_asset_db:
+    image: postgres:15-alpine
+    container_name: postgres_asset_db1
+    hostname: postgres # Usamos un hostname único
+    networks:
+      - backend
+    ports:
+      - "5432:5432" # Puerto para el Asset Discovery Service
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "GaBR1302cm#$" # Contraseña de tu .env
+      POSTGRES_DB: asset_db          # Nombre de la BD de tu .env
+    volumes:
+      - postgres_asset_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d asset_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # --- BASE DE DATOS PARA AUTH SERVICE (del ejemplo que funciona) ---
+
+
+  # --- MICROSERVICIO ASSET DISCOVERY ---
+  asset-discovery-service:
+    build:
+      context: . # Asume que el Dockerfile está en el directorio raíz del proyecto
+      dockerfile: Dockerfile # Especifica el Dockerfile a usar
+    container_name: asset-discovery-service
+    networks:
+      - backend
+    depends_on:
+      postgres_asset_db:
+        condition: service_healthy # Espera a que la BD esté lista
+      kafka:
+        condition: service_started # Espera a que Kafka inicie
+    env_file:
+      - .env
+    restart: on-failure
+
+# Define los volúmenes para la persistencia de datos
+volumes:
+  postgres_asset_data:
+
+# Define la red compartida para todos los servicios
+networks:
+  backend:
+    driver: bridge
