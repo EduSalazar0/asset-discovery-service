@@ -60,3 +60,11 @@ This service is a "headless" worker, meaning it has no API endpoints. Its entry 
     docker build -t asset-discovery-service .
     docker run --env-file .env asset-discovery-service
     ```
+
+##  Ethical Disclaimer and Responsible Use
+
+This microservice has been developed for academic, educational, and research purposes within the context of automated cybersecurity risk assessment. Its intended use is limited to analyzing domains that are either owned by the user or for which explicit authorization has been granted.
+
+**The use of this service for reconnaissance on unauthorized domains is strictly prohibited**, as it may violate ethical standards, legal regulations, and national or international cybersecurity and privacy laws.
+
+As developers and professionals in training, we advocate for the responsible and ethical use of this technology, with full respect for the integrity of systems and third parties.
